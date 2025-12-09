@@ -35,7 +35,11 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/chatbot-project-1-e2e/**/*"]
+      "exclude": [
+        "apps/chatbot-project-1-e2e/**/*",
+        "chatbot-api-first-e2e/**/*",
+        "apps/chatbot-0-api-e2e/**/*"
+      ]
     }
   ]
 }

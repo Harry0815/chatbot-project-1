@@ -14,7 +14,13 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@chatbot-project-1/auth": ["libs/auth/src/index.ts"],
+      "@chatbot-project-1/core": ["libs/core/src/index.ts"],
+      "@chatbot-project-1/db": ["libs/db/src/index.ts"],
+      "@chatbot-project-1/models": ["libs/models/src/index.ts"],
+      "@chatbot-project-1/openai": ["libs/openai/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
