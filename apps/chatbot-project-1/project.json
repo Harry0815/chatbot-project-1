@@ -1,0 +1,26 @@
+{
+  "name": "chatbot-project-1",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/chatbot-project-1/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "chatbot-project-1:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "chatbot-project-1:build:development"
+        },
+        "production": {
+          "buildTarget": "chatbot-project-1:build:production"
+        }
+      }
+    }
+  }
+}
