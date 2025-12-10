@@ -6,14 +6,6 @@ import {
 import { AppModule } from './app/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { patchNestJsSwagger } from 'nestjs-zod';
-import * as fs from 'fs/promises';
-import { embedAndStore } from '@chatbot-project-1/openai';
-
-
-type FaqEntry = {
-  question: string;
-  answer: string;
-};
 
 
 async function bootstrap() {
@@ -50,22 +42,32 @@ async function bootstrap() {
 }
 bootstrap();
 
-async function loadAndEmbedFromFile(filePath: string) {
-  const data = await fs.readFile(filePath, 'utf-8');
-  const entries: FaqEntry[] = JSON.parse(data);
+// type FaqEntry = {
+//   question: string;
+//   answer: string;
+// };
 
-  console.log(`📄 Lade ${entries.length} FAQs...`);
+// const embedAndStore = async (content: string) => {
+//   const vector = await generateEmbedding(content);
+//   await saveEmbedding(content, vector);
+// };
 
-  for (const item of entries) {
-    const content = `Frage: ${item.question}\nAntwort: ${item.answer}`;
-
-    try {
-      console.log(`🔄 Embed & speichere: "${item.question}"`);
-      await embedAndStore(content);
-    } catch (err) {
-      console.error(`❌ Fehler bei "${item.question}":`, err);
-    }
-  }
-
-  console.log('✅ Alle FAQs verarbeitet.');
-}
+// async function loadAndEmbedFromFile(filePath: string) {
+//   const data = await fs.readFile(filePath, 'utf-8');
+//   const entries: FaqEntry[] = JSON.parse(data);
+//
+//   console.log(`📄 Lade ${entries.length} FAQs...`);
+//
+//   for (const item of entries) {
+//     const content = `Frage: ${item.question}\nAntwort: ${item.answer}`;
+//
+//     try {
+//       console.log(`🔄 Embed & speichere: "${item.question}"`);
+//       await embedAndStore(content);
+//     } catch (err) {
+//       console.error(`❌ Fehler bei "${item.question}":`, err);
+//     }
+//   }
+//
+//   console.log('✅ Alle FAQs verarbeitet.');
+// }

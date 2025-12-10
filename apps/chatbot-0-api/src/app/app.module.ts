@@ -5,10 +5,29 @@ import { EmbeddingController } from './controllers/embedding.controller';
 import { EmbeddingService } from './services/embedding.service';
 import { RetrievalController } from './controllers/retrival.controller';
 import { RetrievalService } from './services/retrival.service';
+import {
+  OpenAiEmbeddingService,
+  OpenAiModule,
+  OpenAiService,
+} from '@chatbot-project-1/openai';
+import { DbModule } from '@chatbot-project-1/db';
 
 @Module({
-  imports: [],
-  controllers: [ChatController, EmbeddingController, RetrievalController],
-  providers: [ChatService, EmbeddingService, RetrievalService],
+  imports: [
+    OpenAiModule,
+    DbModule
+  ],
+  controllers: [
+    ChatController,
+    EmbeddingController,
+    RetrievalController
+  ],
+  providers: [
+    ChatService,
+    EmbeddingService,
+    RetrievalService,
+    OpenAiEmbeddingService,
+    OpenAiService
+  ],
 })
 export class AppModule {}

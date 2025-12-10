@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { generateEmbedding } from '@chatbot-project-1/openai';
+import {
+  OpenAiEmbeddingService,
+} from '@chatbot-project-1/openai';
 import { db, embeddingDocument } from '@chatbot-project-1/db';
 import { sql } from 'drizzle-orm';
 
 @Injectable()
 export class RetrievalService {
+  constructor(private readonly openAiService: OpenAiEmbeddingService) {
+  }
+
   async getRelevantDocuments(query: string): Promise<string[]> {
-    const embedding = await generateEmbedding(query);
+    const embedding = await this.openAiService.generateEmbedding(query);
 
     const result = await db.execute(
       sql`
