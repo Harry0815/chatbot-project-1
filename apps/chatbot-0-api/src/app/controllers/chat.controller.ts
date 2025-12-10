@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -47,4 +41,33 @@ export class ChatController {
       });
     }
   }
+
+  @Get('speechToText')
+  @ApiOperation({ summary: 'Testet Speech to text' })
+  async speachToText(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    try {
+      const result = await this.chatService.testSpeechToText();
+      res.send({ response: result });
+    } catch (err) {
+      res.status(400).send({
+        error: err instanceof Error ? err.message : 'Ungültige Eingabe',
+      });
+    }
+  }
+
+  @Post('textToSpeech')
+  @ApiOperation({ summary: 'Erzeugt eine mp3 datei aus einer Textnachricht' })
+  @ApiBody({ type: ChatRequestDto })
+  async textToSpeech(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    try {
+      const parsed = ChatRequestSchema.parse(req.body);
+      const result = await this.chatService.testTranslateText(parsed.message);
+      res.send({ response: result });
+    } catch (err) {
+      res.status(400).send({
+        error: err instanceof Error ? err.message : 'Ungültige Eingabe',
+      });
+    }
+  }
+
 }

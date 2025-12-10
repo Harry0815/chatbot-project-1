@@ -52,22 +52,3 @@ bootstrap();
 //   await saveEmbedding(content, vector);
 // };
 
-// async function loadAndEmbedFromFile(filePath: string) {
-//   const data = await fs.readFile(filePath, 'utf-8');
-//   const entries: FaqEntry[] = JSON.parse(data);
-//
-//   console.log(`📄 Lade ${entries.length} FAQs...`);
-//
-//   for (const item of entries) {
-//     const content = `Frage: ${item.question}\nAntwort: ${item.answer}`;
-//
-//     try {
-//       console.log(`🔄 Embed & speichere: "${item.question}"`);
-//       await embedAndStore(content);
-//     } catch (err) {
-//       console.error(`❌ Fehler bei "${item.question}":`, err);
-//     }
-//   }
-//
-//   console.log('✅ Alle FAQs verarbeitet.');
-// }

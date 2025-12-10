@@ -11,4 +11,19 @@ export class ChatService {
     await saveChat(message, response);
     return response;
   }
+
+  async testSpeechToText() {
+    const response = await this.openAiService.speechToText('test1.wav');
+    return response;
+  }
+
+  async testTextToSpeech(message: string) {
+    const response = await this.openAiService.textToSpeech(message);
+    return response;
+  }
+
+  async testTranslateText(message: string) {
+    const response = await this.openAiService.translateText(message, 'Englisch');
+    return response;
+  }
 }
