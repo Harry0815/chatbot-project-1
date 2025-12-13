@@ -11,6 +11,9 @@ import {
   OpenAiService,
 } from '@chatbot-project-1/openai';
 import { DbModule } from '@chatbot-project-1/db';
+import { StaticController } from './controllers/static.controller';
+import { RealTimeController } from './controllers/real-time.controller';
+import { RealTimeService } from './services/RealTime.service';
 
 @Module({
   imports: [
@@ -20,14 +23,17 @@ import { DbModule } from '@chatbot-project-1/db';
   controllers: [
     ChatController,
     EmbeddingController,
-    RetrievalController
+    RetrievalController,
+    StaticController,
+    RealTimeController,
   ],
   providers: [
     ChatService,
     EmbeddingService,
     RetrievalService,
     OpenAiEmbeddingService,
-    OpenAiService
+    OpenAiService,
+    RealTimeService
   ],
 })
 export class AppModule {}
