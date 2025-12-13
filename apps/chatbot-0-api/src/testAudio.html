@@ -7,13 +7,26 @@
 <h1>Live Audio Translator</h1>
 <audio id="translationAudio" controls ></audio>
 <button id="startBtn">Start Speaking</button>
+<button id="stopBtn" disabled>Stop</button>
 <div id="transcriptLog"></div>
 <script>
   const startBtn = document.getElementById("startBtn");
+  const stopBtn = document.getElementById("stopBtn");
   let pc;
+  let localStream;
+  let sessionId = null;
 
+  function appendLine(text) {
+    const div = document.getElementById('transcriptLog');
+    const p = document.createElement('div');
+    p.textContent = text;
+    div.appendChild(p);
+  }
 
   startBtn.addEventListener("click", async () => {
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+
     pc = new RTCPeerConnection();
 
     const audioEl = document.getElementById('translationAudio');
@@ -32,10 +45,13 @@
 
     pc.ondatachannel = (event) => {
       console.log('Received datachannel');
-      // if (event.channel.label !== 'translation') return;
       event.channel.onmessage = (msg) => {
-        const data = JSON.parse(msg.data);
-        if (data.type === 'transcript') appendLine(data.delta);
+        try {
+          const data = JSON.parse(msg.data);
+          if (data.type === 'transcript') appendLine(data.delta);
+        } catch (e) {
+          console.log('Non-JSON datachannel message', msg.data);
+        }
       };
     };
 
@@ -54,6 +70,8 @@
         })
         .then((data) => {
           console.log(data.answer);
+          sessionId = data.sessionId || null;
+          if (sessionId) console.log('Got sessionId:', sessionId);
           pc.setRemoteDescription(data.answer);
         })
         .catch(err => {
@@ -63,11 +81,48 @@
     };
 
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
+  });
+
+  stopBtn.addEventListener('click', async () => {
+    stopBtn.disabled = true;
+    startBtn.disabled = false;
+
+    // Notify server to stop the session if we have a sessionId
+    try {
+      if (sessionId) {
+        await fetch('/realtime/stop', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId }),
+        });
+        console.log('Requested server to stop session', sessionId);
+        sessionId = null;
+      }
+    } catch (err) {
+      console.error('Failed to request server stop:', err);
+    }
+
+    // Close peer connection and stop local tracks
+    try {
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+      }
+      if (pc) {
+        pc.getSenders().forEach(s => { try { s.track?.stop?.(); } catch (e) {} });
+        pc.close();
+      }
+    } catch (err) {
+      console.error('Error closing local PC/streams:', err);
+    }
+
+    // enable start again
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
   });
 </script>
 </body>

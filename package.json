@@ -64,6 +64,8 @@
     "typescript-eslint": "^8.0.0",
     "drizzle-kit": "0.30.4",
     "webpack-cli": "^5.1.4",
-    "form-data-encoder": "4.1.0"
+    "form-data-encoder": "4.1.0",
+    "wrtc": "0.4.7",
+    "audio-decode": "2.2.3"
   }
 }

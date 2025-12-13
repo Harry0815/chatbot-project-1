@@ -1,6 +1,6 @@
 import { Controller, Post, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { RealTimeService } from '../services/RealTime.service';
+import { RealTimeService } from '@chatbot-project-1/openai';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 @ApiTags('RealTime')
@@ -11,10 +11,38 @@ export class RealTimeController {
   @Post('webrtc/offer')
   @ApiBody({})
   async handleOffer(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    const { offer } = req.body;
-    const { answer } = await this.rtoService.handleOffer(offer);
-    res.send({ answer });
+    const body = req.body as Record<string, unknown> | undefined;
+    const offer = body && (body['offer'] as unknown);
+    if (!offer) {
+      res.status(400).send({ error: 'Missing offer in request body' });
+      return;
+    }
+
+    try {
+      const result = await this.rtoService.handleOffer(offer);
+      res.send(result);
+    } catch (err) {
+      console.error('Failed to handle offer:', err);
+      res.status(500).send({ error: 'Failed to handle offer' });
+    }
+  }
+
+  @Post('stop')
+  @ApiBody({})
+  async stopSession(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const body = req.body as Record<string, unknown> | undefined;
+    const sessionId = body && typeof body['sessionId'] === 'string' ? (body['sessionId'] as string) : null;
+    if (!sessionId) {
+      res.status(400).send({ error: 'Missing sessionId in request body' });
+      return;
+    }
+
+    try {
+      await this.rtoService.stopSession(sessionId);
+      res.send({ ok: true });
+    } catch (err) {
+      console.error('Failed to stop session:', err);
+      res.status(500).send({ error: 'Failed to stop session' });
+    }
   }
 }

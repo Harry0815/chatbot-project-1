@@ -9,11 +9,12 @@ import {
   OpenAiEmbeddingService,
   OpenAiModule,
   OpenAiService,
+  RealTimeService,
 } from '@chatbot-project-1/openai';
 import { DbModule } from '@chatbot-project-1/db';
 import { StaticController } from './controllers/static.controller';
 import { RealTimeController } from './controllers/real-time.controller';
-import { RealTimeService } from './services/RealTime.service';
+// import { RealTimeService } from './services/RealTime.service';
 
 @Module({
   imports: [
