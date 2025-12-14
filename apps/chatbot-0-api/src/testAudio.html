@@ -5,7 +5,7 @@
 </head>
 <body>
 <h1>Live Audio Translator</h1>
-<audio id="translationAudio" controls ></audio>
+<audio id="translationAudio" controls></audio>
 <button id="startBtn">Start Speaking</button>
 <button id="stopBtn" disabled>Stop</button>
 <div id="transcriptLog"></div>
@@ -24,16 +24,27 @@
   }
 
   startBtn.addEventListener("click", async () => {
+    const audioEl = document.getElementById('translationAudio');
+    audioEl.muted = false;
+    audioEl.play().catch((err) => {
+      console.warn('Initial audio play failed (expected before track arrives):', err);
+    });
+
     startBtn.disabled = true;
     stopBtn.disabled = false;
 
     pc = new RTCPeerConnection();
 
-    const audioEl = document.getElementById('translationAudio');
     pc.ontrack = (event) => {
       console.log('Received remote stream');
       const [stream] = event.streams;
-      if (stream) audioEl.srcObject = stream;
+      if (!stream) return;
+      audioEl.srcObject = stream;
+      // Browser verlangt Benutzerinteraktion -> Buttons lösen dieses play() aus
+      audioEl
+        .play()
+        .then(() => console.log('Translation audio playing'))
+        .catch((err) => console.warn('Autoplay blocked, waiting for user gesture', err));
     };
 
     pc.onconnectionstatechange = () => {
