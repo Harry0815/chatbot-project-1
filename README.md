@@ -80,3 +80,75 @@ And join the Nx community:
 - [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
 - [Our Youtube channel](https://www.youtube.com/@nxdevtools)
 - [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+```mermaid
+flowchart LR
+%% Lanes
+  subgraph B["Browser"]
+    B0(["Start click"])
+    B1["getUserMedia: mic audio"]
+    B2["Create RTCPeerConnection"]
+    B3["Add mic track (upstream)"]
+    B4["Create Offer + setLocalDescription"]
+    B5["POST /realtime/webrtc/offer (SDP offer)"]
+    B6["Set RemoteDescription (SDP answer)"]
+    B7["Play translated audio (remote track -> <audio>)"]
+    B8["Show transcript (DataChannel messages)"]
+    B9(["Stop click"])
+    B10["POST /realtime/stop (sessionId)"]
+    B11["Close PC + stop tracks"]
+  end
+
+  subgraph M["Middleware (NestJS)"]
+    M0["Controller: /realtime/webrtc/offer"]
+    M1["Create server PeerConnection"]
+    M2["Create DataChannel: translation"]
+    M3["Create downstream audio track (RTCAudioSource)"]
+    M4["Set offer -> create answer -> return answer + sessionId"]
+    M5["ontrack: RTCAudioSink reads incoming mic audio"]
+    M6["Encode PCM16 to base64"]
+    M7["Debounce / chunking"]
+    M8["Open WebSocket to OpenAI Realtime"]
+    M9["Send: input_audio_buffer.append"]
+    M10["Send: input_audio_buffer.commit"]
+    M11["Send: response.create (translate text + audio)"]
+    M12["Receive WS events (text/audio deltas)"]
+    M13["Forward text delta -> DataChannel.send"]
+    M14["Decode audio delta (base64 PCM16)"]
+    M15["Optional: resample 24k -> 48k and frame 10ms"]
+    M16["Push frames -> RTCAudioSource.onData (downstream)"]
+    M17["Controller: /realtime/stop"]
+    M18["Cleanup: close WS, close PC, free resources"]
+  end
+
+  subgraph O["OpenAI Realtime API"]
+    O0["Realtime WebSocket endpoint (wss)"]
+    O1["Input audio buffer (append)"]
+    O2["Commit chunk"]
+    O3["Create response (translation)"]
+    O4["Stream: output_text.delta"]
+    O5["Stream: output_audio.delta"]
+    O6["Done / failed"]
+  end
+
+%% Setup / signaling
+  B0 --> B1 --> B2 --> B3 --> B4 --> B5 --> M0
+  M0 --> M1 --> M2 --> M3 --> M4 --> B6
+  B6 --> B7
+  B6 --> B8
+
+%% Upstream audio path
+  B3 -- "RTP/Opus mic audio" --> M5 --> M6 --> M7 --> M8 --> O0
+  M8 --> M9 --> O1
+  M7 --> M10 --> O2
+  M7 --> M11 --> O3
+
+%% Downstream text and audio
+  O4 --> M12 --> M13 --> B8
+  O5 --> M12 --> M14 --> M15 --> M16 --> B7
+  O6 --> M12
+
+%% Stop
+  B9 --> B10 --> M17 --> M18
+  B9 --> B11
+```

@@ -294,7 +294,13 @@ export class RealTimeService {
       headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
     });
 
-    this.createDownstreamAudioTrack(pc);
+    // this.createDownstreamAudioTrack(pc);
+    this.sessions.set(Math.random().toString(36).slice(2, 10), {
+      pc,
+      messageQueue: [],
+      downstreamAudio,
+      translationStream: downstreamAudio.translationStream,
+    });
 
     // Per-session message queue
     const messageQueue: string[] = [];
